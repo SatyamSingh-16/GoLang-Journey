@@ -1,9 +1,5 @@
 # 🚀 GoLang Journey - Day 03
 
-## 📅 Date
-
-(Write today's date here)
-
 ---
 
 # 🎯 Goal of the Day

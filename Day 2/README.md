@@ -1,9 +1,5 @@
 # 🚀 GoLang Journey - Day 02
 
-## 📅 Date
-
-(Write today's date here)
-
 ---
 
 # 📚 Topics Covered
