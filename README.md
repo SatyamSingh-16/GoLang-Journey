@@ -11,3 +11,4 @@ This repository documents my daily progress as I learn Go.
 - ✅ Day 3
 - ✅ Day 4
 - ✅ Day 5
+- ✅ Day 6
