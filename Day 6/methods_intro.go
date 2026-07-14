@@ -11,7 +11,7 @@ func (s Student) Introduction(){
 	fmt.Println("Hi, I'm",s.Name)
 	fmt.Println("I'm",s.Age,"years old")
 }
-func (s Student) Greeting() {
+func (s *Student) Greeting() {
 	s.Age++
 }
 
