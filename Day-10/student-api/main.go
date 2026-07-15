@@ -12,7 +12,7 @@ type Student struct {
 }
 
 var students = []Student{
-	{Name: "Satyaam", Age: 21},
+	{Name: "Satyam", Age: 21},
 }
 
 func StudentHandler(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +60,27 @@ func StudentHandler(w http.ResponseWriter, r *http.Request) {
 		students[0]=student 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(student)
+
+	case http.MethodPatch:
+		var update Student 
+
+		err:= json.NewDecoder(r.Body).Decode(&update)
+		if err != nil{
+			http.Error(w,"Invalid Json",http.StatusBadRequest)
+			return 
+		}
+		if len(students)==0{
+			http.Error(w,"No Student Found ",http.StatusBadRequest)
+			return 
+		}
+
+		if update.Name != ""{
+			students[0].Name = update.Name;
+		}
+		if update.Age != 0{
+			students[0].Age = update.Age;
+		}
+		json.NewEncoder(w).Encode(students[0])
 
 	default:
 
