@@ -13,6 +13,8 @@ type Student struct {
 
 var students = []Student{
 	{Name: "Satyam", Age: 21},
+	{Name: "Rahul", Age: 22},
+	{Name: "Krishna", Age: 23},
 }
 
 func StudentHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +83,15 @@ func StudentHandler(w http.ResponseWriter, r *http.Request) {
 			students[0].Age = update.Age;
 		}
 		json.NewEncoder(w).Encode(students[0])
+
+	case http.MethodDelete:
+		if len(students)==0{
+			http.Error(w,"No student found",http.StatusNotFound)
+			return
+		}
+		students = students[1:]
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w,"Student Deleted Successfully")
 
 	default:
 
