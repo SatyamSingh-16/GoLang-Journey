@@ -107,7 +107,8 @@ func PatchStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Temporary
-	student := GetStudentByID(2)
+	id,err := GetIDFromURL(r);
+	student := GetStudentByID(id)
 
 	if student == nil {
 		http.Error(w, "Student Not Found", http.StatusNotFound)
@@ -143,7 +144,8 @@ func DeleteStudentByID(id int) bool {
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
 	// Temporary
-	deleted := DeleteStudentByID(2)
+	id,err := GetIDFromURL(r);
+	deleted := DeleteStudentByID(id)
 
 	if !deleted {
 		http.Error(w, "Student Not Found", http.StatusNotFound)
@@ -151,4 +153,19 @@ func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "Student Deleted Successfully")
+}
+
+func GetIDFromURL(r *http.Request) (int, error) {
+
+	parts := strings.Split(r.URL.Path, "/")
+
+	id, err := strconv.Atoi(parts[2])
+
+	if err != nil {
+
+		return 0, err
+
+	}
+
+	return id, nil
 }
