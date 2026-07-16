@@ -82,7 +82,8 @@ func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Temporary
-	student := GetStudentByID(2)
+	id, err := GetIDFromURL(r);
+	student := GetStudentByID(id)
 
 	if student == nil {
 		http.Error(w, "Student Not Found", http.StatusNotFound)
