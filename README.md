@@ -17,3 +17,4 @@ This repository documents my daily progress as I learn Go.
 - ✅ Day 9
 - ✅ Day 10
 - ✅ Day 11
+- ✅ Day 12
