@@ -8,6 +8,20 @@ import (
 
 func RegisterRoutes() {
 
-	http.HandleFunc("/students", handlers.StudentHandler)
+	http.HandleFunc(
+	"/students",
+
+	Chain(
+
+		handlers.StudentHandler,
+
+		LoggingMiddleware,
+
+		AuthMiddleware,
+
+		ValidationMiddleware,
+
+	),
+)
 
 }

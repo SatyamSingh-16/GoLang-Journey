@@ -1,6 +1,23 @@
-func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
+package middleware
+
+import (
+	"net/http"
+)
+
+func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Checking Authentication")
+
+		token := r.Header.Get("Authorization")
+
+		if token == "" {
+
+			http.Error(w, "Authorization Header Missing", http.StatusUnauthorized)
+			return
+
+		}
+
 		next(w, r)
+
 	}
 }

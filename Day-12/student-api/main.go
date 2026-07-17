@@ -4,14 +4,45 @@ import (
 	"fmt"
 	"net/http"
 
-	"student-api/routes"
+	"student-api/handlers"
+	"student-api/middleware"
 )
 
 func main() {
 
-	routes.RegisterRoutes()
+	http.HandleFunc(
 
-	fmt.Println("🚀 Server Running on :8080")
+		"/students",
+
+		middleware.Chain(
+
+			handlers.StudentHandler,
+
+			middleware.LoggingMiddleware,
+
+			middleware.AuthMiddleware,
+
+			middleware.ValidationMiddleware,
+		),
+	)
+
+	http.HandleFunc(
+
+		"/students/",
+
+		middleware.Chain(
+
+			handlers.StudentHandler,
+
+			middleware.LoggingMiddleware,
+
+			middleware.AuthMiddleware,
+
+			middleware.ValidationMiddleware,
+		),
+	)
+
+	fmt.Println("Server Running on :8080")
 
 	http.ListenAndServe(":8080", nil)
 

@@ -1,9 +1,19 @@
-func LogginMiddleware(next http.HandleFunc) http.HandleFunc{
-	return func(w http.ResponseWriter, r*http.Request){
+package middleware
 
-		fmt.PrintLn("Method :", r.Mehtod)
-		fmt.PrintLn("Path :", r.URL.Path)
-		next(w,r)
+import (
+	"fmt"
+	"net/http"
+)
+
+func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		fmt.Println("========== REQUEST ==========")
+		fmt.Println("Method :", r.Method)
+		fmt.Println("Path   :", r.URL.Path)
+		fmt.Println("=============================")
+
+		next(w, r)
 	}
 }
-

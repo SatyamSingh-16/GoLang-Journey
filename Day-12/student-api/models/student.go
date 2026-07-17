@@ -17,9 +17,4 @@ var Students = []Student{
 		Name: "Rahul",
 		Age:  22,
 	},
-	{
-		ID:   3,
-		Name: "Krishna",
-		Age:  23,
-	},
 }

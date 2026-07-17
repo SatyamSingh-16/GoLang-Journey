@@ -1,25 +1,26 @@
+package middleware
 
+import (
+	"net/http"
+)
 
 func ValidationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		apiKey := r.Header.Get("X-API-Key")
+		if r.Method == http.MethodPost {
 
-		if apiKey == "" {
+			apiKey := r.Header.Get("X-API-Key")
 
-			http.Error(
-				w,
-				"API Key Missing",
-				http.StatusUnauthorized,
-			)
+			if apiKey == "" {
 
-			return
+				http.Error(w, "API Key Missing", http.StatusUnauthorized)
+				return
 
+			}
 		}
 
 		next(w, r)
 
 	}
-
 }
