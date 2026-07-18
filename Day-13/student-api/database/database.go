@@ -115,3 +115,93 @@ func GetStudents() ([]models.Student, error) {
 	return students, nil
 
 }
+
+func GetStudentByID(id int) (models.Student, error) {
+
+	query := `
+	SELECT
+		id,
+		name,
+		age
+	FROM students
+	WHERE id = ?
+	`
+
+	row := DB.QueryRow(query, id)
+
+	var student models.Student
+
+	err := row.Scan(
+		&student.ID,
+		&student.Name,
+		&student.Age,
+	)
+
+	if err != nil {
+		return student, err
+	}
+
+	return student, nil
+}
+func UpdateStudent(student models.Student) error {
+
+	query := `
+	UPDATE students
+	SET
+		name = ?,
+		age = ?
+	WHERE id = ?
+	`
+
+	result, err := DB.Exec(
+
+		query,
+
+		student.Name,
+
+		student.Age,
+
+		student.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+func DeleteStudent(id int) error {
+
+	query := `
+	DELETE FROM students
+	WHERE id = ?
+	`
+
+	result, err := DB.Exec(query, id)
+
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}

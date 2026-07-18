@@ -46,17 +46,31 @@ func StudentHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetStudents(w http.ResponseWriter) {
+func GetStudents(w http.ResponseWriter, r *http.Request) {
+
+	students, err := database.GetStudents()
+
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
 
 	res := response.APIResponse{
 
 		Success: true,
+
 		Message: "Students fetched successfully",
-		Data:    models.Students,
+
+		Data: students,
 	}
 
 	json.NewEncoder(w).Encode(res)
-
 }
 
 func CreateStudent(w http.ResponseWriter, r *http.Request) {
@@ -95,113 +109,183 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 func GetStudentByID(w http.ResponseWriter, r *http.Request) {
 
-	id, err := GetIDFromURL(r)
+	idStr := strings.TrimPrefix(
+		r.URL.Path,
+		"/students/",
+	)
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+
+		http.Error(
+			w,
+			"Invalid Student ID",
+			http.StatusBadRequest,
+		)
+
+		return
+	}
+
+	student, err := database.GetStudentByID(id)
 
 	if err != nil {
 
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
-		return
+		if err == sql.ErrNoRows {
 
-	}
+			http.Error(
+				w,
+				"Student Not Found",
+				http.StatusNotFound,
+			)
 
-	for _, student := range models.Students {
-
-		if student.ID == id {
-
-			res := response.APIResponse{
-
-				Success: true,
-				Message: "Student Found",
-				Data:    student,
-			}
-
-			json.NewEncoder(w).Encode(res)
 			return
-
 		}
 
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
 	}
 
-	http.Error(w, "Student Not Found", http.StatusNotFound)
+	res := response.APIResponse{
 
+		Success: true,
+
+		Message: "Student fetched successfully",
+
+		Data: student,
+	}
+
+	json.NewEncoder(w).Encode(res)
 }
 
 func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
-	id, err := GetIDFromURL(r)
+	idStr := strings.TrimPrefix(
+		r.URL.Path,
+		"/students/",
+	)
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+
+		http.Error(
+			w,
+			"Invalid Student ID",
+			http.StatusBadRequest,
+		)
+
+		return
+	}
+
+	var student models.Student
+
+	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
+
+		http.Error(
+			w,
+			"Invalid JSON",
+			http.StatusBadRequest,
+		)
+
+		return
+	}
+
+	student.ID = id
+
+	err = database.UpdateStudent(student)
 
 	if err != nil {
 
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
-		return
+		if err == sql.ErrNoRows {
 
-	}
-
-	var updated models.Student
-
-	json.NewDecoder(r.Body).Decode(&updated)
-
-	for i := range models.Students {
-
-		if models.Students[i].ID == id {
-
-			updated.ID = id
-
-			models.Students[i] = updated
-
-			res := response.APIResponse{
-
-				Success: true,
-				Message: "Student Updated",
-				Data:    updated,
-			}
-
-			json.NewEncoder(w).Encode(res)
+			http.Error(
+				w,
+				"Student Not Found",
+				http.StatusNotFound,
+			)
 
 			return
-
 		}
 
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
 	}
 
-	http.Error(w, "Student Not Found", http.StatusNotFound)
+	res := response.APIResponse{
 
+		Success: true,
+
+		Message: "Student Updated Successfully",
+
+		Data: student,
+	}
+
+	json.NewEncoder(w).Encode(res)
 }
 
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
-	id, err := GetIDFromURL(r)
+	idStr := strings.TrimPrefix(
+		r.URL.Path,
+		"/students/",
+	)
+
+	id, err := strconv.Atoi(idStr)
 
 	if err != nil {
 
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
-		return
+		http.Error(
+			w,
+			"Invalid Student ID",
+			http.StatusBadRequest,
+		)
 
+		return
 	}
 
-	for i := range models.Students {
+	err = database.DeleteStudent(id)
 
-		if models.Students[i].ID == id {
+	if err != nil {
 
-			models.Students = append(models.Students[:i], models.Students[i+1:]...)
+		if err == sql.ErrNoRows {
 
-			res := response.APIResponse{
-
-				Success: true,
-				Message: "Student Deleted",
-				Data:    nil,
-			}
-
-			json.NewEncoder(w).Encode(res)
+			http.Error(
+				w,
+				"Student Not Found",
+				http.StatusNotFound,
+			)
 
 			return
-
 		}
 
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
 	}
 
-	http.Error(w, "Student Not Found", http.StatusNotFound)
+	res := response.APIResponse{
 
+		Success: true,
+
+		Message: "Student Deleted Successfully",
+
+		Data: nil,
+	}
+
+	json.NewEncoder(w).Encode(res)
 }
 
 func GetIDFromURL(r *http.Request) (int, error) {
