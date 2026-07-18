@@ -73,7 +73,7 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := database.InsertStudent(student)
+	student,err := database.InsertStudent(student)
 	if err != nil {
 
 		http.Error(

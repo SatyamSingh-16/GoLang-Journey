@@ -42,7 +42,8 @@ func ConnectDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func InsertStudent(student models.Student) error {
+func InsertStudent(student models.Student) (models.Student, error) {
+
 	query := `
 	INSERT INTO students (
 		name,
@@ -50,13 +51,67 @@ func InsertStudent(student models.Student) error {
 	)
 	VALUES (?, ?)
 	`
-	_, err := DB.Exec(
+
+	result, err := DB.Exec(
 		query,
 		student.Name,
 		student.Age,
 	)
+
 	if err != nil {
-		return err
+		return student, err
 	}
-	return nil
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return student, err
+	}
+
+	student.ID = int(id)
+
+	return student, nil
+}
+
+func GetStudents() ([]models.Student, error) {
+
+	query := `
+	SELECT
+		id,
+		name,
+		age
+	FROM students
+	`
+
+	rows, err := DB.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var students []models.Student
+	for rows.Next() {
+
+		var student models.Student
+
+		err := rows.Scan(
+			&student.ID,
+			&student.Name,
+			&student.Age,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		students = append(
+			students,
+			student,
+		)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return students, nil
+
 }
