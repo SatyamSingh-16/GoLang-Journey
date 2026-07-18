@@ -6,15 +6,3 @@ type Student struct {
 	Age  int    `json:"age"`
 }
 
-var Students = []Student{
-	{
-		ID:   1,
-		Name: "Satyam",
-		Age:  21,
-	},
-	{
-		ID:   2,
-		Name: "Rahul",
-		Age:  22,
-	},
-}

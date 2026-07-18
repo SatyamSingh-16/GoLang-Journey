@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
+	"student-api/database"
 	"student-api/models"
 	"student-api/response"
 )
@@ -63,21 +63,34 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	var student models.Student
 
-	json.NewDecoder(r.Body).Decode(&student)
+	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
 
-	student.ID = len(models.Students) + 1
+		http.Error(
+			w,
+			"Invalid JSON",
+			http.StatusBadRequest,
+		)
+		return
+	}
 
-	models.Students = append(models.Students, student)
+	err := database.InsertStudent(student)
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
 
 	res := response.APIResponse{
-
 		Success: true,
 		Message: "Student Created Successfully",
-		Data:    student,
+		Data:    student, // ID will be fixed in the next lesson
 	}
 
 	json.NewEncoder(w).Encode(res)
-
 }
 
 func GetStudentByID(w http.ResponseWriter, r *http.Request) {
