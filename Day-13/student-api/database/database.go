@@ -20,6 +20,20 @@ func ConnectDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	query := `
+		CREATE TABLE IF NOT EXISTS students (
+
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+		name TEXT NOT NULL,
+
+		age INTEGER NOT NULL
+
+	);`
+	_, err = db.Exec(query)
+	if err != nil {
+		return nil, err
+	}
 
 	fmt.Println("Database Connected Successfully ✅")
 
