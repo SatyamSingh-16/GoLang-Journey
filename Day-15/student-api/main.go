@@ -16,6 +16,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	
+	err = database.CreateUsersTable(db)
+	if err != nil {
+		panic(err)
+	}
 	defer db.Close()
 
 	// Register Routes
@@ -38,6 +43,8 @@ func main() {
 			middleware.ValidationMiddleware,
 		),
 	)
+
+	http.HandleFunc("/register",handlers.Register,)
 
 	fmt.Println("Server Running on :8080")
 

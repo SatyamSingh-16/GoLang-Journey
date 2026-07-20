@@ -1,16 +1,15 @@
 package database
 
-var DB *sql.DB
 import (
 	"database/sql"
 	"fmt"
-
+	"student-api/models"
 	_ "modernc.org/sqlite"
 )
+var DB *sql.DB
 
 func ConnectDB() (*sql.DB, error) {
-	DB = db
-
+	
 	db, err := sql.Open(
 		"sqlite",
 		"student.db",
@@ -18,6 +17,7 @@ func ConnectDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	DB = db
 	err = db.Ping()
 	if err != nil {
 		return nil, err
