@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"student-api/handlers"
+	"student-api/middleware"
 )
 
 func RegisterRoutes() {
@@ -11,15 +12,15 @@ func RegisterRoutes() {
 	http.HandleFunc(
 	"/students",
 
-	Chain(
+	middleware.Chain(
 
 		handlers.StudentHandler,
 
-		LoggingMiddleware,
+		middleware.LoggingMiddleware,
 
-		AuthMiddleware,
+		middleware.AuthMiddleware,
 
-		ValidationMiddleware,
+		middleware.ValidationMiddleware,
 
 	),
 )

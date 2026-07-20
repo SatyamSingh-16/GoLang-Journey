@@ -1,24 +1,26 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
-	"database/sql"
 	"student-api/database"
 	"student-api/models"
-	"golang.org/x/crypto/bcrypt"
+
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
 
 	var req models.RegisterRequest
 
-	err := json.NewDecoder(r.body).Decode(&req)
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil{
-		htt.Error(w,
+		http.Error(w,
 		"Invalid JSON",
 		http.StatusBadRequest,)
+		return
 	}
 	if req.Name == "" {
 
@@ -107,4 +109,77 @@ if err == nil {
 	"message": "User registered successfully",
 })
 	return 
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+
+	var req models.LoginRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			"Invalid JSON",
+			http.StatusBadRequest,
+		)
+
+		return
+	}
+	if req.Email == "" {
+
+	http.Error(
+		w,
+		"Email is required",
+		http.StatusBadRequest,
+	)
+
+	return
+}
+
+if req.Password == "" {
+
+	http.Error(
+		w,
+		"Password is required",
+		http.StatusBadRequest,
+	)
+
+	return
+}
+	user, err := database.GetUserByEmail(
+	database.DB,
+	req.Email,
+)
+
+if err != nil {
+
+	http.Error(
+		w,
+		"Invalid email or password",
+		http.StatusUnauthorized,
+	)
+
+	return
+}
+err = bcrypt.CompareHashAndPassword(
+	[]byte(user.PasswordHash),
+	[]byte(req.Password),
+)
+
+if err != nil {
+
+	http.Error(
+		w,
+		"Invalid email or password",
+		http.StatusUnauthorized,
+	)
+
+	return
+}
+json.NewEncoder(w).Encode(map[string]string{
+	"message": "Login Successful",
+})
+
 }

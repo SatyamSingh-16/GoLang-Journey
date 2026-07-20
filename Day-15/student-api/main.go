@@ -45,6 +45,8 @@ func main() {
 	)
 
 	http.HandleFunc("/register",handlers.Register,)
+	http.HandleFunc("/login",handlers.Login,
+)
 
 	fmt.Println("Server Running on :8080")
 

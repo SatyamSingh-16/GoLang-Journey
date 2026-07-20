@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -18,7 +19,7 @@ func StudentHandler(w http.ResponseWriter, r *http.Request) {
 
 		if r.URL.Path == "/students" {
 
-			GetStudents(w)
+			GetStudents(w, r)
 
 		} else {
 
