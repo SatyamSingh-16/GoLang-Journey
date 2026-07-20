@@ -1,6 +1,7 @@
 package database
 
-import "database/sql"
+import ("database/sql"
+		"student-api/models")
 
 
 func CreateUsersTable(db *sql.DB) error{
@@ -37,4 +38,28 @@ func CreateUser(db *sql.DB, user models.User) error {
 	)
 
 return err
+}
+
+func GetUserByEmail(db *sql.DB, email string) (models.User, error) {
+	query := `
+		SELECT
+		id,
+		name,
+		email,
+		password_hash
+	FROM users
+	WHERE email = ?
+	`
+	row := db.QueryRow(query, email)
+
+var user models.User
+
+err := row.Scan(
+	&user.ID,
+	&user.Name,
+	&user.Email,
+	&user.PasswordHash,
+)
+
+return user, err
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"database/sql"
 	"student-api/database"
 	"student-api/models"
 	"golang.org/x/crypto/bcrypt"
@@ -62,6 +63,28 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+	_, err = database.GetUserByEmail(database.DB, req.Email)
+
+if err == nil {
+
+	http.Error(
+		w,
+		"Email already registered",
+		http.StatusConflict,
+	)
+
+	return
+
+} else if err != sql.ErrNoRows {
+
+	http.Error(
+		w,
+		"Database error",
+		http.StatusInternalServerError,
+	)
+
+	return
+}
 	user := models.User{
 		ID:           uuid.New().String(),
 		Name:         req.Name,
