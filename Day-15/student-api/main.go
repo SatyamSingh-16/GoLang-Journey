@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	err = database.CreateUsersTable(db)
 	if err != nil {
 		panic(err)
@@ -44,11 +44,11 @@ func main() {
 		),
 	)
 
-	http.HandleFunc("/register",handlers.Register,)
-	http.HandleFunc("/login",handlers.Login,
-)
+	http.HandleFunc("/register", handlers.Register)
+	http.HandleFunc("/login", handlers.Login)
 
 	fmt.Println("Server Running on :8080")
 
 	http.ListenAndServe(":8080", nil)
 }
+func add() { fmt.Println("Hello") }

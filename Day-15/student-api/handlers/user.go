@@ -16,10 +16,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	var req models.RegisterRequest
 
 	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil{
+	if err != nil {
 		http.Error(w,
-		"Invalid JSON",
-		http.StatusBadRequest,)
+			"Invalid JSON",
+			http.StatusBadRequest)
 		return
 	}
 	if req.Name == "" {
@@ -34,23 +34,23 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.Email == "" {
 
-	http.Error(
-		w,
-		"Email is required",
-		http.StatusBadRequest,
-	)
+		http.Error(
+			w,
+			"Email is required",
+			http.StatusBadRequest,
+		)
 
-	return
+		return
 	}
 	if req.Password == "" {
 
-	http.Error(
-		w,
-		"Password is required",
-		http.StatusBadRequest,
-	)
+		http.Error(
+			w,
+			"Password is required",
+			http.StatusBadRequest,
+		)
 
-	return
+		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(
@@ -67,26 +67,26 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = database.GetUserByEmail(database.DB, req.Email)
 
-if err == nil {
+	if err == nil {
 
-	http.Error(
-		w,
-		"Email already registered",
-		http.StatusConflict,
-	)
+		http.Error(
+			w,
+			"Email already registered",
+			http.StatusConflict,
+		)
 
-	return
+		return
 
-} else if err != sql.ErrNoRows {
+	} else if err != sql.ErrNoRows {
 
-	http.Error(
-		w,
-		"Database error",
-		http.StatusInternalServerError,
-	)
+		http.Error(
+			w,
+			"Database error",
+			http.StatusInternalServerError,
+		)
 
-	return
-}
+		return
+	}
 	user := models.User{
 		ID:           uuid.New().String(),
 		Name:         req.Name,
@@ -106,9 +106,9 @@ if err == nil {
 	}
 
 	json.NewEncoder(w).Encode(map[string]string{
-	"message": "User registered successfully",
-})
-	return 
+		"message": "User registered successfully",
+	})
+	return
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -129,57 +129,57 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.Email == "" {
 
-	http.Error(
-		w,
-		"Email is required",
-		http.StatusBadRequest,
-	)
+		http.Error(
+			w,
+			"Email is required",
+			http.StatusBadRequest,
+		)
 
-	return
-}
+		return
+	}
 
-if req.Password == "" {
+	if req.Password == "" {
 
-	http.Error(
-		w,
-		"Password is required",
-		http.StatusBadRequest,
-	)
+		http.Error(
+			w,
+			"Password is required",
+			http.StatusBadRequest,
+		)
 
-	return
-}
+		return
+	}
 	user, err := database.GetUserByEmail(
-	database.DB,
-	req.Email,
-)
-
-if err != nil {
-
-	http.Error(
-		w,
-		"Invalid email or password",
-		http.StatusUnauthorized,
+		database.DB,
+		req.Email,
 	)
 
-	return
-}
-err = bcrypt.CompareHashAndPassword(
-	[]byte(user.PasswordHash),
-	[]byte(req.Password),
-)
+	if err != nil {
 
-if err != nil {
+		http.Error(
+			w,
+			"Invalid email or password",
+			http.StatusUnauthorized,
+		)
 
-	http.Error(
-		w,
-		"Invalid email or password",
-		http.StatusUnauthorized,
+		return
+	}
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.PasswordHash),
+		[]byte(req.Password),
 	)
 
-	return
-}
-json.NewEncoder(w).Encode(map[string]string{
-	"message": "Login Successful",
-})
+	if err != nil {
+
+		http.Error(
+			w,
+			"Invalid email or password",
+			http.StatusUnauthorized,
+		)
+
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Login Successful",
+	})
 
 }

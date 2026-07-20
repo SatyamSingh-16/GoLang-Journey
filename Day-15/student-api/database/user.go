@@ -1,10 +1,11 @@
 package database
 
-import ("database/sql"
-		"student-api/models")
+import (
+	"database/sql"
+	"student-api/models"
+)
 
-
-func CreateUsersTable(db *sql.DB) error{
+func CreateUsersTable(db *sql.DB) error {
 	query := `
 	CREATE TABLE IF NOT EXISTS users(
 		id TEXT PRIMARY KEY,
@@ -15,7 +16,7 @@ func CreateUsersTable(db *sql.DB) error{
 	`
 
 	_, err := db.Exec(query)
-	return err;
+	return err
 }
 
 func CreateUser(db *sql.DB, user models.User) error {
@@ -30,14 +31,14 @@ func CreateUser(db *sql.DB, user models.User) error {
 	`
 
 	_, err := db.Exec(
-	query,
-	user.ID,
-	user.Name,
-	user.Email,
-	user.PasswordHash,
+		query,
+		user.ID,
+		user.Name,
+		user.Email,
+		user.PasswordHash,
 	)
 
-return err
+	return err
 }
 
 func GetUserByEmail(db *sql.DB, email string) (models.User, error) {
@@ -52,14 +53,14 @@ func GetUserByEmail(db *sql.DB, email string) (models.User, error) {
 	`
 	row := db.QueryRow(query, email)
 
-var user models.User
+	var user models.User
 
-err := row.Scan(
-	&user.ID,
-	&user.Name,
-	&user.Email,
-	&user.PasswordHash,
-)
+	err := row.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.PasswordHash,
+	)
 
-return user, err
+	return user, err
 }
