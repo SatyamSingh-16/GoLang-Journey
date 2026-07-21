@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"student-api/database"
 	"student-api/models"
+	"student-api/utils"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -178,8 +179,23 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+	token, err := utils.GenerateToken(
+		user.ID,
+		user.Email,
+	)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			"Unable to generate token",
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
 	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Login Successful",
+		"token": token,
 	})
 
 }
