@@ -1,4 +1,4 @@
-# 🚀 GoLang Journey - Day 20
+# 🚀 GoLang Journey - Day 17
 
 ---
 
