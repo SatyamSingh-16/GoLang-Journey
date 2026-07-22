@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"student-api/app"
 	"student-api/config"
 	"student-api/database"
 	"student-api/handlers"
@@ -11,6 +12,9 @@ import (
 )
 
 func main() {
+	application := &app.Application{
+		DB: database.DB,
+	}
 	config.LoadConfig()
 	// Connect to Database
 	db, err := database.ConnectDB()
@@ -52,4 +56,5 @@ func main() {
 
 	http.ListenAndServe(":8080", nil)
 }
-func add() { fmt.Println("Hello") }
+
+// func add() { fmt.Println("Hello") }
