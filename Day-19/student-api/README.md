@@ -4,333 +4,287 @@
 
 # 🏗️ Theme
 
-Today marked the transition from building backend APIs to building a secure authentication system. Instead of simply processing requests and managing data, the application began verifying user identities, protecting sensitive information, enforcing authentication rules, and preparing APIs for secure access. The focus shifted from CRUD operations to implementing the security foundations that every modern backend relies on.
+Today marked one of the biggest architectural milestones in my Go backend journey. Instead of simply connecting a database, I learned how Go applications communicate with relational databases using the `database/sql` package, how drivers work behind the scenes, how PostgreSQL integrates with Go applications, and why repositories isolate database-specific logic from business logic. The focus shifted from "using a database" to understanding the complete lifecycle of a database request and building a backend that can switch database technologies with minimal code changes.
 
 ---
 
 # 🎯 Goal of the Day
 
-Today's goal was to build the foundation of a secure authentication system for the Student API.
+Today's goal was to understand how professional Go backend applications communicate with PostgreSQL using the Go standard library.
 
-Instead of focusing on CRUD operations, I learned how modern backend applications identify users, securely store credentials, validate incoming requests, authenticate users during login, and prepare APIs for token-based authentication.
+Instead of simply writing SQL queries, I learned how `database/sql` works internally, why database drivers exist, how connection pools are managed, how different SQL execution APIs work, how repositories isolate SQL from business logic, and how an HTTP request travels from the client to the database and back.
 
-By the end of the day, I understood how authentication systems work internally, why passwords should never be stored directly, how bcrypt protects user credentials, how login verification works, and the complete theory behind JWT-based authentication.
+By the end of the day, I understood the complete database architecture of a Go backend application and successfully migrated the application's infrastructure from SQLite toward PostgreSQL while keeping the business layer independent.
 
 ---
 
 # 📚 Topics Covered
 
-## Authentication vs Authorization
+## Go Database Architecture
 
-Learned the difference between proving identity and controlling access.
+Learned how Go applications communicate with SQL databases.
 
 Covered:
 
-- Authentication
-- Authorization
-- Public Routes
-- Protected Routes
-- Authentication Flow
-- Authorization Flow
-- Real-world examples
+- database/sql
+- SQL Drivers
+- PostgreSQL Driver
+- Driver Registration
+- Blank Imports
+- Database Abstraction
+- Standard Library
 
-Understood that authentication answers **"Who are you?"**, while authorization answers **"What are you allowed to do?"**
+Understood that Go applications communicate with `database/sql`, while database drivers implement the communication with specific databases.
 
 ---
 
-## Users Table
+## Database Connection
 
-Designed a dedicated table for user authentication.
+Learned how backend applications establish database connections.
 
 Covered:
 
-- Users Table
-- SQLite
-- User Schema
-- UUID-based User IDs
-- Email Uniqueness
-- Password Hash Storage
+- sql.Open()
+- Connection String
+- sql.DB
+- Ping()
+- Database Handle
+- Connection Verification
 
-Created fields for:
-
-- ID
-- Name
-- Email
-- Password Hash
-
-Learned why passwords should never be stored directly inside the database.
+Learned that `sql.Open()` prepares a database handle while `Ping()` verifies connectivity with the database server.
 
 ---
 
-## User Models
+## Connection Pooling
 
-Created dedicated models for authentication.
+Studied how Go manages database connections efficiently.
 
 Covered:
 
-- User Model
-- RegisterRequest
-- LoginRequest
-- Request Models
-- Database Models
+- Connection Pool
+- Shared Database Handle
+- Resource Reuse
+- Expensive Connections
+- Infrastructure Sharing
 
-Learned why HTTP request models and database models should have separate responsibilities.
+Learned that `*sql.DB` represents a connection pool manager rather than a single database connection.
 
 ---
 
-## User Registration
+## PostgreSQL Integration
 
-Built the first authentication endpoint.
-
-Implemented:
-
-```
-POST /register
-```
+Migrated the backend architecture toward PostgreSQL.
 
 Covered:
 
-- JSON Decoding
-- Request Validation
-- HTTP Status Codes
-- Error Handling
-- User Registration Flow
+- PostgreSQL
+- pgx Driver
+- SQL Drivers
+- Connection Strings
+- SERIAL Primary Key
+- PostgreSQL Server
 
-Learned how backend services safely receive user registration requests.
+Learned the differences between SQLite and PostgreSQL and how Go applications communicate with both through the same interface.
 
 ---
 
-## Input Validation
+## SQL Execution APIs
 
-Learned why backend applications should never trust client input.
-
-Validated:
-
-- Name
-- Email
-- Password
+Studied how different SQL operations are executed.
 
 Covered:
 
-- Required Fields
-- Bad Request Responses
-- Validation Flow
-- Defensive Programming
-
-Understood that validation should happen before any business logic or database operations.
-
----
-
-## Password Hashing
-
-Implemented secure password hashing using bcrypt.
-
-Covered:
-
-- bcrypt
-- Password Hashing
-- One-way Hash Functions
-- Hash Verification
-- Password Security
-- Default Cost
-
-Learned why passwords are hashed instead of encrypted and why plaintext passwords should never be stored.
-
----
-
-## Database Integration
-
-Connected registration logic with the database layer.
-
-Covered:
-
-- SQL INSERT
-- User Creation
-- UUID Generation
-- Database Layer
-- Separation of Responsibilities
-
-Learned how handlers communicate with the database while keeping business logic separate from SQL queries.
-
----
-
-## Duplicate Email Validation
-
-Prevented multiple accounts from using the same email.
-
-Covered:
-
-- Email Lookup
+- Exec()
+- Query()
 - QueryRow()
-- sql.ErrNoRows
-- UNIQUE Constraints
-- Conflict Responses
+- sql.Result
+- RowsAffected()
+- RETURNING
+- Scan()
 
-Learned how application-level validation works together with database constraints.
-
----
-
-## Login System
-
-Implemented secure user authentication.
-
-Implemented:
-
-```
-POST /login
-```
-
-Covered:
-
-- User Lookup
-- Password Verification
-- bcrypt.CompareHashAndPassword()
-- Authentication Flow
-- Unauthorized Responses
-
-Learned how authentication systems verify passwords without ever decrypting them.
+Learned when to use each API based on the type of data expected from the database.
 
 ---
 
-## JWT Theory
+## SQLite to PostgreSQL Migration
 
-Studied the complete theory behind token-based authentication.
+Migrated database-specific SQL syntax.
 
 Covered:
 
-- JSON Web Tokens (JWT)
-- Tokens
-- Header
-- Payload
-- Signature
-- Authorization Header
-- Bearer Token
-- Token Expiration
-- JWT Security
+- Placeholder Migration
+- ? → $1
+- AUTOINCREMENT → SERIAL
+- LastInsertId()
+- RETURNING id
 
-Understood why applications use JWT instead of sending passwords with every request.
+Learned why PostgreSQL uses `RETURNING` instead of `LastInsertId()`.
+
+---
+
+## Repository Pattern
+
+Strengthened the architecture by isolating SQL inside repositories.
+
+Covered:
+
+- Repository Pattern
+- Separation of Concerns
+- SQL Isolation
+- Persistence Layer
+- Dependency Injection
+
+Learned that repositories should be the only layer responsible for communicating with the database.
+
+---
+
+## Request Lifecycle
+
+Studied the complete journey of an HTTP request.
+
+Covered:
+
+- HTTP Server
+- Router
+- Handler
+- Service
+- Repository
+- database/sql
+- Driver
+- PostgreSQL
+- JSON Response
+
+Understood how information flows through every layer of the application.
+
+---
+
+## Layered Architecture Review
+
+Reviewed the responsibility of every backend layer.
+
+Covered:
+
+- main.go
+- Router
+- Handler
+- Service
+- Repository
+- Database
+- Driver
+
+Learned why each layer should have a single responsibility.
 
 ---
 
 # 💻 Concepts Learned
 
-- Authentication
-- Authorization
-- Public Routes
-- Protected Routes
-- User Registration
-- User Login
-- Request Validation
-- HTTP Status Codes
-- Password Hashing
-- bcrypt
-- Password Verification
-- UUID
-- User Models
-- Request Models
-- Database Models
-- SQL INSERT
+- database/sql
+- SQL Drivers
+- pgx
+- PostgreSQL
+- Connection Pool
+- sql.DB
+- sql.Open()
+- Ping()
+- Exec()
+- Query()
 - QueryRow()
-- sql.ErrNoRows
-- UNIQUE Constraints
-- JWT
-- Header
-- Payload
-- Signature
-- Bearer Token
-- Authorization Header
+- sql.Result
+- RowsAffected()
+- RETURNING
+- Scan()
+- Repository Pattern
+- Separation of Concerns
+- Dependency Injection
+- Layered Architecture
+- HTTP Request Lifecycle
+- Database Migration
 
 ---
 
 # 🧠 Important Concepts Learned
 
-- Authentication verifies user identity.
-- Authorization controls access to resources.
-- Passwords should never be stored in plaintext.
-- Hashes are one-way and cannot be reversed.
-- bcrypt automatically salts passwords before hashing.
-- Login verifies passwords instead of decrypting them.
-- Every API should validate incoming requests.
-- Request models and database models serve different purposes.
-- Database constraints improve data integrity but should be complemented by application-level validation.
-- JWT allows clients to authenticate without repeatedly sending passwords.
-- JWT payloads are encoded, not encrypted.
-- JWT signatures prevent token tampering.
+- `database/sql` provides a common interface for SQL databases.
+- Database drivers translate Go operations into database-specific protocols.
+- `sql.Open()` prepares a database handle but does not verify connectivity.
+- `Ping()` confirms that the database server is reachable.
+- `*sql.DB` manages a pool of reusable database connections.
+- `Exec()` is used when no rows are expected.
+- `Query()` is used when multiple rows are expected.
+- `QueryRow()` is used when exactly one row is expected.
+- `sql.Result` contains metadata rather than query results.
+- PostgreSQL uses `RETURNING` instead of `LastInsertId()`.
+- Repositories isolate SQL from business logic.
+- Business logic should remain independent of the database implementation.
+- Handlers translate HTTP requests into Go objects.
+- Services enforce business rules.
+- Repositories perform persistence operations.
+- Good architecture localizes change to a single layer.
 
 ---
 
 # ⚠️ Common Mistakes I Learned
 
-- Storing plaintext passwords.
-- Encrypting passwords instead of hashing them.
-- Trusting client input without validation.
-- Returning different login errors for invalid email and invalid password.
-- Exposing internal database errors directly to clients.
-- Storing sensitive information inside JWT payloads.
-- Assuming JWT payloads are encrypted.
-- Reusing request models as database models.
-- Ignoring duplicate email validation.
-- Forgetting to hash passwords before saving them.
+- Calling `sql.Open()` and assuming the database is connected.
+- Creating multiple database connections instead of sharing one `*sql.DB`.
+- Using `Exec()` when the query returns data.
+- Using `Query()` when only one row is expected.
+- Calling `LastInsertId()` with PostgreSQL.
+- Mixing SQL queries inside the service layer.
+- Allowing handlers to perform business logic.
+- Creating database connections inside repositories.
+- Forgetting to close database resources.
+- Writing database-specific logic outside the repository layer.
 
 ---
 
 # 🎯 Interview Notes
 
-## Difference Between Authentication and Authorization
+## What is `database/sql`?
 
-Authentication verifies who the user is.
-
-Authorization determines what that authenticated user is allowed to access.
+`database/sql` is Go's standard database package that provides a common interface for communicating with SQL databases. Database-specific drivers implement this interface.
 
 ---
 
-## Why Use bcrypt Instead of Storing Passwords?
+## What is `*sql.DB`?
 
-bcrypt converts passwords into one-way hashes, making it practically impossible to recover the original password if the database is compromised.
-
----
-
-## Why Hash Passwords Instead of Encrypting Them?
-
-Passwords only need verification, not recovery.
-
-Hashing provides one-way security, whereas encryption is reversible.
+`*sql.DB` is not a single database connection. It is a connection pool manager that efficiently manages multiple reusable connections.
 
 ---
 
-## Why Use JWT?
+## Difference Between Exec(), Query(), and QueryRow()
 
-JWT allows authenticated users to access protected APIs without sending their passwords with every request.
-
----
-
-## What Are the Three Parts of a JWT?
-
-A JWT consists of:
-
-- Header
-- Payload
-- Signature
+- **Exec()** → Used when no rows are returned.
+- **Query()** → Used when multiple rows are returned.
+- **QueryRow()** → Used when exactly one row is expected.
 
 ---
 
-## Why Is JWT Payload Not Suitable for Sensitive Data?
+## Why Doesn't PostgreSQL Use LastInsertId()?
 
-JWT payloads are Base64 encoded, not encrypted, meaning anyone possessing the token can decode and read the payload.
+PostgreSQL uses the SQL `RETURNING` clause, allowing queries to return generated IDs or even complete rows directly.
 
 ---
 
-## Why Use UUIDs for User IDs?
+## Why Use the Repository Pattern?
 
-UUIDs provide globally unique identifiers that are difficult to predict and suitable for distributed systems.
+The repository pattern isolates persistence logic from business logic, making database migrations and testing significantly easier.
+
+---
+
+## Why Is Dependency Injection Important?
+
+Dependency Injection allows objects to receive their dependencies instead of creating them, improving modularity, testing, and maintainability.
 
 ---
 
 # 💡 Biggest Takeaways
 
-Today I learned that authentication is much more than creating login and registration endpoints. Modern backend applications must securely validate users, hash passwords using bcrypt, prevent duplicate accounts, protect user credentials, and prepare APIs for secure token-based authentication.
+Today I learned that building a backend is not just about writing SQL queries—it is about designing clear boundaries between layers.
 
-I also learned the complete theory behind JWTs, including how tokens prove authentication, why signatures prevent tampering, and why passwords should only be transmitted during login. These concepts transformed the Student API from a simple CRUD application into the foundation of a secure backend system.
+Understanding `database/sql`, connection pools, SQL execution APIs, repositories, and request lifecycles completely changed how I think about backend architecture. I also realized why Clean Architecture focuses on responsibilities rather than folders and why changing a database should require changes primarily inside the repository layer.
+
+This day transformed my understanding of how production-grade Go backend applications communicate with relational databases.
 
 ---
 
@@ -338,16 +292,20 @@ I also learned the complete theory behind JWTs, including how tokens prove authe
 
 Completed:
 
-- ✅ Authentication vs Authorization
-- ✅ Users Table
-- ✅ User Models
-- ✅ User Registration
-- ✅ Input Validation
-- ✅ Password Hashing (bcrypt)
-- ✅ Database Integration
-- ✅ Duplicate Email Validation
-- ✅ Login System
-- ✅ JWT Theory
+- ✅ database/sql
+- ✅ SQL Drivers
+- ✅ PostgreSQL Integration
+- ✅ Connection Pooling
+- ✅ sql.Open()
+- ✅ Ping()
+- ✅ Exec()
+- ✅ Query()
+- ✅ QueryRow()
+- ✅ sql.Result
+- ✅ SQLite → PostgreSQL Migration
+- ✅ Repository Refactoring
+- ✅ Request Lifecycle
+- ✅ Layered Architecture Review
 
 ---
 
@@ -355,28 +313,25 @@ Completed:
 
 Next Steps:
 
-- JWT Generation
-- JWT Authentication Middleware
-- Protected Routes
-- Authorization Middleware
-- Role-Based Access Control (RBAC)
-- Access Tokens
-- Refresh Tokens
-- Logout
-- Password Reset
-- PostgreSQL
-- Docker
-- Redis
-- Gin Framework
+- Database Transactions
+- ACID Properties
+- Commit()
+- Rollback()
+- sql.Tx
+- Transaction Patterns
+- Money Transfer System
+- Context Package
+- Advanced SQL
+- Connection Pool Tuning
 
 ---
 
 # 💭 Reflection
 
-Day 17 marked one of the biggest transitions in my Go backend journey.
+Day 25 completely changed the way I think about backend development.
 
-Unlike previous days, today's focus was not on building additional CRUD functionality but on understanding how real backend applications establish trust between users and servers. I learned how authentication systems securely store user credentials using bcrypt, validate registration requests, prevent duplicate accounts, verify user identities during login, and prepare applications for token-based authentication.
+Instead of treating the database as a place to execute SQL queries, I learned how professional Go applications communicate with databases through abstractions like `database/sql`, how drivers handle database-specific communication, and how repositories isolate persistence logic from business logic.
 
-Perhaps the biggest lesson of the day was realizing that security is not a single feature but a collection of carefully designed engineering practices. Understanding authentication, password hashing, validation, and JWT theory fundamentally changed how I think about backend development.
+Perhaps the biggest lesson of the day was realizing that good architecture is not about creating more folders—it is about ensuring every layer has exactly one responsibility. Watching a request travel from the browser to PostgreSQL and back gave me a complete mental model of how modern backend applications work.
 
-This day established the security foundation that every production backend application depends upon and prepared the project for implementing JWT-based authentication and protected APIs in the next stage of the journey. 🚀💙
+This day established the database architecture that every scalable Go backend relies on and prepared me to move beyond CRUD into advanced topics like transactions, consistency, and production-grade database design. 🚀💙
