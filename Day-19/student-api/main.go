@@ -15,28 +15,38 @@ import (
 
 func main() {
 	config.LoadConfig()
+
 	// Connect to Database
 	db, err := database.ConnectDB()
 	if err != nil {
 		panic(err)
 	}
-
-	err = database.CreateUsersTable(db)
-	if err != nil {
-		panic(err)
-	}
 	defer db.Close()
 
-	application := &app.Application{DB: db}
-	studentRepository := repositories.NewSQLiteStudentRepository(application)
-	studentService := services.NewStudentService(studentRepository)
-	studentHandler := handlers.NewStudentHandler(studentService)
+	// Initialize Database Schema
+	if err := database.InitSchema(db); err != nil {
+		panic(err)
+	}
 
-	routes.RegisterRoutes(studentHandler)
+	application := &app.Application{DB: db}
+
+	// Repositories
+	studentRepository := repositories.NewPostgresStudentRepository(application)
+	userRepository := repositories.NewPostgresUserRepository(application)
+
+
+	// Services
+	studentService := services.NewStudentService(studentRepository)
+	userService := services.NewUserService(userRepository)
+
+	// Handlers
+	studentHandler := handlers.NewStudentHandler(studentService)
+	userHandler := handlers.NewUserHandler(userService)
+
+	// Register Routes
+	routes.RegisterRoutes(studentHandler, userHandler)
 
 	fmt.Println("Server Running on :8080")
-
 	http.ListenAndServe(":8080", nil)
 }
 
-// func add() { fmt.Println("Hello") }

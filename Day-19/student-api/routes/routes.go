@@ -7,7 +7,7 @@ import (
 	"student-api/middleware"
 )
 
-func RegisterRoutes(studentHandler *handlers.StudentHandler) {
+func RegisterRoutes(studentHandler *handlers.StudentHandler, userHandler *handlers.UserHandler) {
 
 	http.HandleFunc(
 		"/students",
@@ -34,7 +34,8 @@ func RegisterRoutes(studentHandler *handlers.StudentHandler) {
 		),
 	)
 
-	http.HandleFunc("/register", handlers.Register)
-	http.HandleFunc("/login", handlers.Login)
+	http.HandleFunc("/register", userHandler.Register)
+	http.HandleFunc("/login", userHandler.Login)
 
 }
+

@@ -15,20 +15,26 @@ type StudentRepository interface {
 	DeleteStudent(id int) error
 }
 
-type SQLiteStudentRepository struct {
+type PostgresStudentRepository struct {
 	app *app.Application
 }
 
-func NewSQLiteStudentRepository(
+func NewPostgresStudentRepository(
 	app *app.Application,
-) *SQLiteStudentRepository {
-
-	return &SQLiteStudentRepository{
+) *PostgresStudentRepository {
+	return &PostgresStudentRepository{
 		app: app,
 	}
 }
 
-func (r *SQLiteStudentRepository) GetStudents() ([]models.Student, error) {
+// Keeping NewSQLiteStudentRepository for backward compatibility
+func NewSQLiteStudentRepository(
+	app *app.Application,
+) *PostgresStudentRepository {
+	return NewPostgresStudentRepository(app)
+}
+
+func (r *PostgresStudentRepository) GetStudents() ([]models.Student, error) {
 	query := `
 	SELECT
 		id,
@@ -59,37 +65,32 @@ func (r *SQLiteStudentRepository) GetStudents() ([]models.Student, error) {
 	return students, nil
 }
 
-func (r *SQLiteStudentRepository) CreateStudent(student models.Student) (models.Student, error) {
+func (r *PostgresStudentRepository) CreateStudent(student models.Student) (models.Student, error) {
 	query := `
 	INSERT INTO students(
 		name,
 		age
 	)
-	VALUES (?, ?)
+	VALUES ($1, $2)
+	RETURNING id
 	`
 
-	result, err := r.app.DB.Exec(query, student.Name, student.Age)
+	err := r.app.DB.QueryRow(query, student.Name, student.Age).Scan(&student.ID)
 	if err != nil {
 		return student, err
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return student, err
-	}
-
-	student.ID = int(id)
 	return student, nil
 }
 
-func (r *SQLiteStudentRepository) GetStudentByID(id int) (models.Student, error) {
+func (r *PostgresStudentRepository) GetStudentByID(id int) (models.Student, error) {
 	query := `
 	SELECT
 		id,
 		name,
 		age
 	FROM students
-	WHERE id = ?
+	WHERE id = $1
 	`
 
 	var student models.Student
@@ -104,13 +105,13 @@ func (r *SQLiteStudentRepository) GetStudentByID(id int) (models.Student, error)
 	return student, nil
 }
 
-func (r *SQLiteStudentRepository) UpdateStudent(student models.Student) error {
+func (r *PostgresStudentRepository) UpdateStudent(student models.Student) error {
 	query := `
 	UPDATE students
 	SET
-		name = ?,
-		age = ?
-	WHERE id = ?
+		name = $1,
+		age = $2
+	WHERE id = $3
 	`
 
 	result, err := r.app.DB.Exec(query, student.Name, student.Age, student.ID)
@@ -130,10 +131,10 @@ func (r *SQLiteStudentRepository) UpdateStudent(student models.Student) error {
 	return nil
 }
 
-func (r *SQLiteStudentRepository) DeleteStudent(id int) error {
+func (r *PostgresStudentRepository) DeleteStudent(id int) error {
 	query := `
 	DELETE FROM students
-	WHERE id = ?
+	WHERE id = $1
 	`
 
 	result, err := r.app.DB.Exec(query, id)

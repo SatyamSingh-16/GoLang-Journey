@@ -1,145 +1,86 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
-	"student-api/database"
+	apperrors "student-api/apperrors"
 	"student-api/models"
 	"student-api/response"
-	"student-api/utils"
-
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
+	"student-api/services"
 )
 
-func Register(w http.ResponseWriter, r *http.Request) {
+type UserHandler struct {
+	service services.UserService
+}
+
+func NewUserHandler(service services.UserService) *UserHandler {
+	return &UserHandler{
+		service: service,
+	}
+}
+
+func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		response.Error(w, http.StatusMethodNotAllowed, "Method Not Allowed")
+		return
+	}
 
 	var req models.RegisterRequest
-
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, "Invalid JSON")
 		return
 	}
-	if req.Name == "" {
 
-		response.Error(w, http.StatusBadRequest, "Name is required")
-
-		return
-	}
-	if req.Email == "" {
-
-		response.Error(w, http.StatusBadRequest, "Email is required")
-
-		return
-	}
-	if req.Password == "" {
-
-		response.Error(w, http.StatusBadRequest, "Password is required")
-
-		return
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(req.Password),
-		bcrypt.DefaultCost,
-	)
+	err = h.service.Register(req)
 	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "Unable to hash password")
-		return
-	}
-	_, err = database.GetUserByEmail(database.DB, req.Email)
-
-	if err == nil {
-
-		response.Error(w, http.StatusConflict, "Email already registered")
-
-		return
-
-	} else if err != sql.ErrNoRows {
-
-		response.Error(w, http.StatusInternalServerError, "Database error")
-
-		return
-	}
-	user := models.User{
-		ID:           uuid.New().String(),
-		Name:         req.Name,
-		Email:        req.Email,
-		PasswordHash: string(hashedPassword),
-	}
-
-	err = database.CreateUser(database.DB, user)
-
-	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "Unable to create user")
+		if errors.Is(err, services.ErrUserNameRequired) ||
+			errors.Is(err, services.ErrUserEmailRequired) ||
+			errors.Is(err, services.ErrUserPasswordRequired) {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if errors.Is(err, apperrors.ErrUserAlreadyExists) {
+			response.Error(w, http.StatusConflict, "Email already registered")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Unable to register user")
 		return
 	}
 
 	response.Success(w, http.StatusCreated, "User registered successfully", nil)
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		response.Error(w, http.StatusMethodNotAllowed, "Method Not Allowed")
+		return
+	}
 
 	var req models.LoginRequest
-
 	err := json.NewDecoder(r.Body).Decode(&req)
-
 	if err != nil {
-
 		response.Error(w, http.StatusBadRequest, "Invalid JSON")
-
-		return
-	}
-	if req.Email == "" {
-
-		response.Error(w, http.StatusBadRequest, "Email is required")
-
 		return
 	}
 
-	if req.Password == "" {
-
-		response.Error(w, http.StatusBadRequest, "Password is required")
-
-		return
-	}
-	user, err := database.GetUserByEmail(
-		database.DB,
-		req.Email,
-	)
-
+	token, err := h.service.Login(req)
 	if err != nil {
-
-		response.Error(w, http.StatusUnauthorized, "Invalid email or password")
-
+		if errors.Is(err, services.ErrUserEmailRequired) ||
+			errors.Is(err, services.ErrUserPasswordRequired) {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if errors.Is(err, apperrors.ErrInvalidCredentials) {
+			response.Error(w, http.StatusUnauthorized, "Invalid email or password")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Unable to login")
 		return
 	}
-	err = bcrypt.CompareHashAndPassword(
-		[]byte(user.PasswordHash),
-		[]byte(req.Password),
-	)
 
-	if err != nil {
-
-		response.Error(w, http.StatusUnauthorized, "Invalid email or password")
-
-		return
-	}
-	token, err := utils.GenerateToken(
-		user.ID,
-		user.Email,
-	)
-
-	if err != nil {
-
-		response.Error(w, http.StatusInternalServerError, "Unable to generate token")
-
-		return
-	}
 	response.Success(w, http.StatusOK, "Login successful", map[string]string{
 		"token": token,
 	})
-
 }
