@@ -24,3 +24,4 @@ This repository documents my daily progress as I learn Go.
 - ✅ Day 16
 - ✅ Day 17
 - ✅ Day 18
+- ✅ Day 19
