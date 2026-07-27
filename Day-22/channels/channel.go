@@ -8,5 +8,7 @@ func main() {
 		ch <- 100
 	}()
 	value := <-ch
+	//called Rendezvous means
+	//two goroutines meet to exchange data
 	fmt.Println(value)
 }
