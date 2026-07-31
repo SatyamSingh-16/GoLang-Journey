@@ -27,6 +27,11 @@ func main() {
 		course := c.Param("courses")
 		c.String(200, "Student "+studentID+" "+course+" "+courseID)
 	})
+	router.GET("/students", func(c *gin.Context) {
+		page := c.Query("page")
+		limit := c.Query("limit")
+		c.String(200, "Page: "+page+" Limit: "+limit)
+	})
 	router.Run(":8080")
 
 }
