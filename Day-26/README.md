@@ -1,4 +1,4 @@
-# 🚀 GoLang Journey - Day 24
+# 🚀 GoLang Journey - Day 26
 
 ---
 
