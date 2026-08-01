@@ -32,3 +32,4 @@ This repository documents my daily progress as I learn Go.
 - ✅ Day 24
 - ✅ Day 25
 - ✅ Day 26
+- ✅ Day 27
