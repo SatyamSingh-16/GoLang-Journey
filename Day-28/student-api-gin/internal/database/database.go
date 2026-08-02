@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"log"
+	"time"
 )
 
 func New() *sql.DB {
@@ -17,4 +18,9 @@ func New() *sql.DB {
 	if err := db.Ping(); err != nil {
 		log.Fatal(err) // ping says hello postgresql
 	}
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(10)
+	db.SetConnMaxLifetime(time.Hour)
+
+	return db
 }

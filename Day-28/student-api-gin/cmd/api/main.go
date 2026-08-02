@@ -1,6 +1,7 @@
 package main
 
 import (
+	"student-api-gin/internal/database"
 	"student-api-gin/internal/handler"
 	"student-api-gin/internal/repository"
 	"student-api-gin/internal/routes"
