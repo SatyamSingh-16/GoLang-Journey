@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"student-api-gin/internal/dto"
 	"student-api-gin/internal/models"
 )
 
@@ -87,4 +88,27 @@ func (r *StudentRepository) GetStudentByID(
 		return nil, err
 	}
 	return &student, nil
+}
+func (r *StudentRepository) CreateStudent(
+	ctx context.Context,
+	request dto.CreateStudentRequest,
+) (int, error) {
+	query := `
+	INSERT INTO students(name,email)
+	VALUES($1,$2)
+	RETURNING id
+	`
+	var id int
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		request.Name,
+		request.Email,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }

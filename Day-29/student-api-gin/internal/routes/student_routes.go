@@ -18,4 +18,8 @@ func RegisterStudentRoutes(
 		"/students/:id",
 		handler.GetStudentByID,
 	)
+	router.POST(
+		"/students",
+		handler.CreateStudent,
+	)
 }

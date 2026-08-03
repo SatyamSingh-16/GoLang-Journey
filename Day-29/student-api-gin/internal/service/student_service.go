@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"student-api-gin/internal/dto"
 	"student-api-gin/internal/models"
 	"student-api-gin/internal/repository"
 )
@@ -32,5 +33,16 @@ func (s *StudentService) GetStudentByID(
 ) (*models.Student, error) {
 
 	return s.repo.GetStudentByID(ctx, id)
+
+}
+func (s *StudentService) CreateStudent(
+	ctx context.Context,
+	request dto.CreateStudentRequest,
+) (int, error) {
+
+	return s.repo.CreateStudent(
+		ctx,
+		request,
+	)
 
 }

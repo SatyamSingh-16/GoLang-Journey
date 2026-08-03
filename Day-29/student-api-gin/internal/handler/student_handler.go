@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"strconv"
+	"student-api-gin/internal/dto"
 	"student-api-gin/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -82,6 +83,33 @@ func (h *StudentHandler) GetStudentByID(
 	c.JSON(
 		http.StatusOK,
 		student,
+	)
+}
+func (h *StudentHandler) CreateStudent(
+	c *gin.Context,
+) {
+
+	ctx := c.Request.Context()
+
+	var request dto.CreateStudentRequest
+
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid request body",
+		})
+		return
+	}
+	id, err := h.service.CreateStudent(
+		ctx,
+		request,
+	)
+	c.JSON(
+		http.StatusCreated,
+		gin.H{
+			"id":      id,
+			"message": "student created successfully",
+		},
 	)
 
 }
