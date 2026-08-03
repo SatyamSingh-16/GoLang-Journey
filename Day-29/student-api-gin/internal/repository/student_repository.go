@@ -60,3 +60,31 @@ func (r *StudentRepository) GetStudents(
 	}
 	return students, nil
 }
+func (r *StudentRepository) GetStudentByID(
+	ctx context.Context,
+	id int,
+) (*models.Student, error) {
+	query := `
+	SELECT id, name, email
+	FROM students
+	WHERE id = $1
+`
+	row := r.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	)
+	var student models.Student
+	err := row.Scan(
+		&student.ID,
+		&student.Name,
+		&student.Email,
+	)
+	if err == sql.ErrNoRows {
+		return nil, err
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &student, nil
+}

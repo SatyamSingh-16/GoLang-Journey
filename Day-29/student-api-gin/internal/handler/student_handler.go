@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"database/sql"
 	"net/http"
+	"strconv"
 	"student-api-gin/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -38,4 +40,48 @@ func (h *StudentHandler) GetStudents(
 		http.StatusOK,
 		students,
 	)
+}
+
+func (h *StudentHandler) GetStudentByID(
+	c *gin.Context,
+) {
+	ctx := c.Request.Context()
+	id := c.Param("id")
+	studentID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": "invalid student id",
+			},
+		)
+		return
+	}
+	student, err := h.service.GetStudentByID(
+		ctx,
+		studentID,
+	)
+	if err == sql.ErrNoRows {
+		c.JSON(
+			http.StatusNotFound,
+			gin.H{
+				"error": "student not found",
+			},
+		)
+		return
+	}
+	if err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"error": "internal server error",
+			},
+		)
+		return
+	}
+	c.JSON(
+		http.StatusOK,
+		student,
+	)
+
 }

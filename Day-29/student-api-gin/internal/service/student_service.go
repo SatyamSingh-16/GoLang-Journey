@@ -26,3 +26,11 @@ func (s *StudentService) GetStudents(
 	return s.repo.GetStudents(ctx)
 
 }
+func (s *StudentService) GetStudentByID(
+	ctx context.Context,
+	id int,
+) (*models.Student, error) {
+
+	return s.repo.GetStudentByID(ctx, id)
+
+}

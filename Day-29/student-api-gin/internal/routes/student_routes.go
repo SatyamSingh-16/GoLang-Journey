@@ -14,4 +14,8 @@ func RegisterStudentRoutes(
 		"/students",
 		handler.GetStudents,
 	)
+	router.GET(
+		"/students/:id",
+		handler.GetStudentByID,
+	)
 }
