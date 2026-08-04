@@ -3,6 +3,7 @@ package main
 import (
 	"student-api-gin/internal/database"
 	"student-api-gin/internal/handler"
+	"student-api-gin/internal/middleware"
 	"student-api-gin/internal/repository"
 	"student-api-gin/internal/routes"
 	"student-api-gin/internal/service"
@@ -13,6 +14,7 @@ import (
 func main() {
 
 	router := gin.Default()
+	router.Use(middleware.Logger)
 	db := database.New()
 	repo := repository.NewStudentRepository(db)
 	service := service.NewStudentService(repo)
