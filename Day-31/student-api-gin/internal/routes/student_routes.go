@@ -2,6 +2,7 @@ package routes
 
 import (
 	"student-api-gin/internal/handler"
+	"student-api-gin/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,19 +11,27 @@ func RegisterStudentRoutes(
 	router *gin.Engine,
 	handler *handler.StudentHandler,
 ) {
-	router.GET(
+	protected := router.Group("/")
+
+	protected.Use(
+		middleware.AuthMiddleware(),
+	)
+
+	protected.GET(
 		"/students",
 		handler.GetStudents,
 	)
-	router.GET(
-		"/students/:id",
-		handler.GetStudentByID,
-	)
-	router.POST(
+
+	protected.POST(
 		"/students",
 		handler.CreateStudent,
 	)
-	router.PUT(
+	protected.GET(
+		"/students/:id",
+		handler.GetStudentByID,
+	)
+
+	protected.PUT(
 		"/students/:id",
 		handler.UpdateStudent,
 	)

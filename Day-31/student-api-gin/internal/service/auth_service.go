@@ -9,6 +9,8 @@ import (
 	"student-api-gin/internal/models"
 	"student-api-gin/internal/repository"
 
+	"student-api-gin/internal/auth"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -73,4 +75,37 @@ func (s *AuthService) Register(
 		Message: "User registered successfully",
 	}
 	return &response, nil
+}
+func (s *AuthService) Login(
+	ctx context.Context,
+	request dto.LoginRequest,
+) (*dto.LoginResponse, error) {
+
+	user, err := s.repo.GetUserByEmail(
+		ctx,
+		request.Email,
+	)
+
+	if err != nil {
+		return nil, customerrors.ErrInvalidCredentials
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.PasswordHash),
+		[]byte(request.Password),
+	)
+
+	if err != nil {
+		return nil, customerrors.ErrInvalidCredentials
+	}
+
+	token, err := auth.GenerateJWT(user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.LoginResponse{
+		Token: token,
+	}, nil
 }
