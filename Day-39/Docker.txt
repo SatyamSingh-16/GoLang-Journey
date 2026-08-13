@@ -11,3 +11,7 @@ docker logs my-api  ----> to see logs
 docker logs -f my-api ----> follow logs 
 docker exec -it my-container sh ----> i(interactive) t(allocate a terminal) give us interactive terminal experience
 docker inspect my-redis ----> provide detailed metadata about docker object
+docker pull redis   ----> download image from registry
+docker push redis   ----> upload an image to registry
+docker run -p 8080(HOSTPORT):8080(CONTAINER PORT) my-api ----> to publish it on your host
+
