@@ -1,0 +1,13 @@
+docker create redis ----> create container but not run it
+docker start redis  ----> start running the container
+docker run redis    ----> create and run the container
+docker stop redis   ----> stop running container
+docker run -- name my-redis redis ----> rename redis to my-redis
+docker ps           ----> show running container
+docker ps -a        ----> show stopped container
+docker rm my-redis  ----> delete a container
+docker restart my-redis ----> restart a container
+docker logs my-api  ----> to see logs 
+docker logs -f my-api ----> follow logs 
+docker exec -it my-container sh ----> i(interactive) t(allocate a terminal) give us interactive terminal experience
+docker inspect my-redis ----> provide detailed metadata about docker object
