@@ -46,3 +46,4 @@ This repository documents my daily progress as I learn Go.
 - ✅ Day 38
 - ✅ Day 39
 - ✅ Day 40
+- ✅ Day 41
